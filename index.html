@@ -1,7 +1,4 @@
-<?php
-// Start the session (optional, if you want to use session messages instead of GET)
-session_start();
-?>
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,6 +6,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Checkout Form</title>
     <style>
+      /* আপনার সব ডিজাইন এখানে অপরিবর্তিত থাকবে */
       body {
         font-family: Arial, Helvetica, sans-serif;
         background: #f8fafc;
@@ -42,6 +40,7 @@ session_start();
         font-size: 14px;
         outline: none;
         transition: all 0.2s ease;
+        box-sizing: border-box;
       }
       input:focus,
       textarea:focus {
@@ -101,15 +100,7 @@ session_start();
     <div class="form-wrapper">
       <h2>Complete Your Order</h2>
 
-      <!-- Show success message if redirected -->
-      <?php if(isset($_GET['success']) && $_GET['success'] == 1): ?>
-      <div class="success-message">
-        ✅ Your order has been submitted successfully!
-      </div>
-      <?php endif; ?>
-
-      <form action="process.php" method="post">
-        <!-- Name -->
+      <form id="orderForm">
         <div class="grid-2 form-group">
           <div>
             <label>First Name *</label>
@@ -121,7 +112,6 @@ session_start();
           </div>
         </div>
 
-        <!-- Contact -->
         <div class="grid-2 form-group">
           <div>
             <label>Email Address *</label>
@@ -143,46 +133,65 @@ session_start();
           </div>
         </div>
 
-        <!-- Address -->
         <div class="form-group">
           <label>Installation Address *</label>
           <input
             type="text"
             name="address"
-            placeholder="Street address, Apartment, suite, etc."
+            placeholder="Street address..."
             required
           />
         </div>
 
-        <!-- Location -->
         <div class="grid-3 form-group">
           <div>
-            <label>City *</label>
-            <input type="text" name="city" required />
+            <label>City *</label><input type="text" name="city" required />
           </div>
           <div>
-            <label>State *</label>
-            <input type="text" name="state" required />
+            <label>State *</label><input type="text" name="state" required />
           </div>
           <div>
-            <label>ZIP Code *</label>
-            <input type="text" name="zip" required />
+            <label>ZIP Code *</label><input type="text" name="zip" required />
           </div>
         </div>
 
-        <!-- Notes -->
         <div class="form-group">
           <label>Order Notes (Optional)</label>
-          <textarea
-            name="notes"
-            rows="3"
-            placeholder="Notes about your order..."
-          ></textarea>
+          <textarea name="notes" rows="3" placeholder="Notes..."></textarea>
         </div>
 
-        <!-- Submit -->
-        <button type="submit">Place Order Now</button>
+        <button type="submit" id="submitBtn">Place Order Now</button>
       </form>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#orderForm").on("submit", function (e) {
+          e.preventDefault();
+
+          let formData = $(this).serialize();
+          formData += "&action=insert";
+
+          $.ajax({
+            url: "process.php",
+            type: "POST",
+            data: formData,
+            beforeSend: function () {
+              $("#submitBtn").text("Processing...").prop("disabled", true);
+            },
+            success: function (response) {
+              if (response.trim() == "success") {
+                // সফল হলে view.php তে রিডাইরেক্ট হবে
+                window.location.href = "view.php?status=success";
+              } else {
+                alert("Error: " + response);
+                $("#submitBtn").text("Place Order Now").prop("disabled", false);
+              }
+            },
+          });
+        });
+      });
+    </script>
   </body>
 </html>

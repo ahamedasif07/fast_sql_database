@@ -1,77 +1,68 @@
 <?php
+// ডাটাবেস কানেকশন
+$conn = mysqli_connect("localhost", "root", "", "dummy_database");
 
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "dummy_database";
-
-$conn = new mysqli($host, $user, $pass, $db);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['firstName'] . ' ' . $_POST['lastName'];
-    echo $name;
+// টেবিল না থাকলে অটোমেটিক তৈরি হবে
+$table_sql = "CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(50),
+    lastName VARCHAR(50),
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    address VARCHAR(255),
+    city VARCHAR(50),
+    state VARCHAR(50),
+    zip VARCHAR(20),
+    notes TEXT
+)";
+mysqli_query($conn, $table_sql);
 
+// AJAX থেকে আসা Action চেক করা
+$action = $_POST['action'] ?? '';
 
+// ১. ডাটা সেভ করার অংশ
+if ($action == "insert") {
+    $fName = $_POST['firstName'];
+    $lName = $_POST['lastName'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $addr  = $_POST['address'];
+    $city  = $_POST['city'];
+    $state = $_POST['state'];
+    $zip   = $_POST['zip'];
+    $notes = $_POST['notes'];
 
+    $sql = "INSERT INTO orders (firstName, lastName, email, phone, address, city, state, zip, notes) 
+            VALUES ('$fName', '$lName', '$email', '$phone', '$addr', '$city', '$state', '$zip', '$notes')";
 
-
-
-
-    $create_sql = "CREATE TABLE IF NOT EXISTS orders (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        firstName VARCHAR(50) NOT NULL,
-        lastName VARCHAR(50) NOT NULL,
-        email VARCHAR(100) NOT NULL,
-        phone VARCHAR(20) NOT NULL,
-        address VARCHAR(255) NOT NULL,
-        city VARCHAR(100) NOT NULL,
-        state VARCHAR(100) NOT NULL,
-        zip VARCHAR(20) NOT NULL,
-        notes TEXT,
-        created_at DATETIME NOT NULL
-    )";
-
-    $conn->query($create_sql);
-
-    $firstName  = $_POST['firstName'];
-    $lastName   = $_POST['lastName'];
-    $email      = $_POST['email'];
-    $phone      = $_POST['phone'];
-    $address    = $_POST['address'];
-    $city       = $_POST['city'];
-    $state      = $_POST['state'];
-    $zip        = $_POST['zip'];
-    $notes      = $_POST['notes'];
-    $created_at = date("Y-m-d H:i:s");
-
-    $sql = "INSERT INTO orders 
-        (firstName, lastName, email, phone, address, city, state, zip, notes, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param(
-        "ssssssssss",
-        $firstName,
-        $lastName,
-        $email,
-        $phone,
-        $address,
-        $city,
-        $state,
-        $zip,
-        $notes,
-        $created_at
-    );
-
-    if ($stmt->execute()) {
-        header("Location: index.php?success=1");
-        exit();
+    if (mysqli_query($conn, $sql)) {
+        echo "success"; // এটিই AJAX রিসিভ করবে
+    } else {
+        echo "Error: " . mysqli_error($conn);
     }
+    exit();
+}
 
-    $stmt->close();
-    $conn->close();
+// ২. ডাটা তুলে আনার অংশ (view.php এর জন্য)
+if ($action == "fetch") {
+    $sql = "SELECT * FROM orders ORDER BY id DESC";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            echo "<tr>
+                    <td>{$row['id']}</td>
+                    <td>{$row['firstName']} {$row['lastName']}</td>
+                    <td>{$row['email']}</td>
+                    <td>{$row['city']}</td>
+                  </tr>";
+        }
+    } else {
+        echo "<tr><td colspan='4' align='center'>No data found.</td></tr>";
+    }
+    exit();
 }
