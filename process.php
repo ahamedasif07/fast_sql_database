@@ -53,13 +53,15 @@ if ($action == "fetch") {
     $result = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($result) > 0) {
+        $count = 1; // সিরিয়াল নম্বর শুরু করার জন্য
         while ($row = mysqli_fetch_assoc($result)) {
             echo "<tr>
-                    <td>{$row['id']}</td>
+                    <td>{$count}</td> 
                     <td>{$row['firstName']} {$row['lastName']}</td>
                     <td>{$row['email']}</td>
                     <td>{$row['city']}</td>
                   </tr>";
+            $count++; // প্রতি লুপে ১ করে বাড়বে
         }
     } else {
         echo "<tr><td colspan='4' align='center'>No data found.</td></tr>";
