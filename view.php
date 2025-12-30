@@ -84,7 +84,7 @@
 
             if (confirm("Are you sure to delete?")) {
                 $.ajax({
-                    url: "process.php",
+                    url: "delete.php",
                     type: "POST",
                     data: {
                         action: "delete",
