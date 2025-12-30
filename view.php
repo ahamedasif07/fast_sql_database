@@ -56,7 +56,7 @@
             </tbody>
         </table>
         <br>
-        <a href="index.php">Add New Order</a>
+        <a href="index.html">Add New Order</a>
     </div>
 
     <script>
