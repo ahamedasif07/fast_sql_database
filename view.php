@@ -49,6 +49,7 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>City</th>
+                    <th>Button</th>
                 </tr>
             </thead>
             <tbody id="loadData">
@@ -59,20 +60,45 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            // ডাটাবেস থেকে ডাটা আনার AJAX কল
+        function loadData() {
             $.ajax({
                 url: "process.php",
                 type: "POST",
                 data: {
                     action: "fetch"
                 },
-                success: function(response) {
-                    $("#loadData").html(response);
+                success: function(data) {
+                    $("#loadData").html(data);
                 }
             });
+        }
+
+        // Page load হলে auto data load
+        $(document).ready(function() {
+            loadData();
+        });
+
+        // Delete button click
+        $(document).on("click", ".delete-btn", function() {
+            let id = $(this).data("id");
+
+            if (confirm("Are you sure to delete?")) {
+                $.ajax({
+                    url: "process.php",
+                    type: "POST",
+                    data: {
+                        action: "delete",
+                        id: id
+                    },
+                    success: function(response) {
+                        alert(response);
+                        loadData(); // delete পরে আবার load
+                    }
+                });
+            }
         });
     </script>
+
 
 </body>
 

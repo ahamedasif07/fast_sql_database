@@ -60,11 +60,28 @@ if ($action == "fetch") {
                     <td>{$row['firstName']} {$row['lastName']}</td>
                     <td>{$row['email']}</td>
                     <td>{$row['city']}</td>
+                  <td>
+                    <button data-id={$row['id']} class=delete-btn type='button'>Delete</button>
+                </td>
+
+
                   </tr>";
             $count++; // প্রতি লুপে ১ করে বাড়বে
         }
     } else {
         echo "<tr><td colspan='4' align='center'>No data found.</td></tr>";
+    }
+    exit();
+}
+
+// delete data \
+if ($action == "delete") {
+    $id = $_POST['id'];
+    $sql = "DELETE FROM orders WHERE id='$id'";
+    if (mysqli_query($conn, $sql)) {
+        echo "Deleted Successfully";
+    } else {
+        echo "delete failde";
     }
     exit();
 }
