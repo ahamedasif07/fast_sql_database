@@ -61,9 +61,20 @@ if ($action == "fetch") {
                     <td>{$row['email']}</td>
                     <td>{$row['city']}</td>
                   <td>
-                    <button data-id={$row['id']} class=delete-btn type='button'>Delete</button>
-                </td>
+        <button 
+            class='edit-btn'
+            data-id='{$row['id']}'
+            data-fname='{$row['firstName']}'
+            data-lname='{$row['lastName']}'
+            data-email='{$row['email']}'
+            data-city='{$row['city']}'
+        >Edit</button>
 
+        <button 
+            class='delete-btn' 
+            data-id='{$row['id']}'
+        >Delete</button>
+    </td>
 
                   </tr>";
             $count++; // প্রতি লুপে ১ করে বাড়বে
